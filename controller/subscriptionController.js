@@ -5,7 +5,7 @@ import JWTService from "../services/JWTService.js";
 let token;
 let role;
 
-const subscriptionAdd = async (req, res, next) => {
+const subscriptionAdd = async (req, res) => {
   const subscriptionSchema = joi.object({
     subscriptionTitle: joi.string().required(),
     subscriptionPrice: joi.string().required(),
@@ -13,7 +13,10 @@ const subscriptionAdd = async (req, res, next) => {
   });
   const { error } = subscriptionSchema.validate(req.body);
   if (error) {
-    return next(error);
+    return res.status(422).json({
+      success: false,
+      message: error.message,
+    });
   }
 
   try {
@@ -47,12 +50,15 @@ const subscriptionAdd = async (req, res, next) => {
         message: "you are not a authorized person",
       });
     }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const allPlanList = async (req, res, next) => {
+const allPlanList = async (req, res) => {
   try {
       const subscriptionPlanList = await subscriptionPlanSchema.find();
       res.status(200).json({
@@ -61,12 +67,15 @@ const allPlanList = async (req, res, next) => {
         userList: subscriptionPlanList,
       });
 
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const planUpdate = async (req, res, next) => {
+const planUpdate = async (req, res) => {
   role = req.user.role;
   const { id } = req.params;
 
@@ -115,12 +124,15 @@ const planUpdate = async (req, res, next) => {
         message: "you are not a authorized person",
       });
     }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const planDelete = async (req, res, next) => {
+const planDelete = async (req, res) => {
   role = req.user.role;
   try {
     if (role === "admin") {
@@ -144,11 +156,14 @@ const planDelete = async (req, res, next) => {
       });
     }
   } catch (error) {
-    return next(err);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const getPlanDetail = async (req, res, next) => {
+const getPlanDetail = async (req, res) => {
   const id = req.params.id;
   try {
       const subscriptionPlanData = await subscriptionPlanSchema.findOne({
@@ -160,8 +175,11 @@ const getPlanDetail = async (req, res, next) => {
         detail: subscriptionPlanData,
       });
     }
-   catch (err) {
-    return next(err);
+   catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 

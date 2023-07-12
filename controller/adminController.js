@@ -5,24 +5,26 @@ import JWTService from "../services/JWTService.js";
 import fs from "fs";
 import schoolModel from "../Model/schoolModelSchema.js";
 
-const adminRegister = async (req, res, next) => {
+
+const adminRegister = async (req, res) => {
   const adminRegisterSchema = joi.object({
     adminName: joi.string().required(),
     adminEmail: joi.string().email().required(),
-    adminPassword: joi
-      .string()
-      .pattern(new RegExp("^[a-zA-Z0-9]{3,30}"))
-      .required(),
+    adminPassword: joi.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}")).required(),
     confirmPassword: joi.ref("adminPassword"),
     role: joi.string().default("admin"),
     profilePic: joi.string().default("default.jpg"),
   });
   const { error } = adminRegisterSchema.validate(req.body);
   if (error) {
-    return next(error);
+    return res.status(422).json({
+      success: false,
+      message: error.message
+    });
   }
 
   let fileName;
+  console.log(req.file)
   if (req.file) {
     fileName = req.file.filename;
   }
@@ -34,35 +36,36 @@ const adminRegister = async (req, res, next) => {
       adminEmail: req.body.adminEmail,
     });
     if (emailExist) {
-      // fs.unlinkSync(req.file.path);
+       fs.unlinkSync(req.file.path);
       return res.status(404).json({
         success: false,
-        message: "admin already exist",
+        message: "Admin already exist",
       });
     } else {
       adminData.adminPassword = await bcrypt.hash(req.body.adminPassword, 10);
-      (adminData.profilePic = fileName
-        ? `/uploads/${fileName}`
-        : "default.jpg"),
+      (adminData.profilePic = fileName ? fileName : null),
         (adminDetail = await adminData.save());
 
       token = JWTService.sign({ _id: adminData._id, role: adminData.role });
       adminDetail.adminPassword = undefined;
     }
-  } catch (err) {
-    // fs.unlinkSync(req.file.path);
-    return next(err);
+  } catch (error) {
+     fs.unlinkSync(req.file.path);
+     return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
   res.json({
     success: true,
     status: 201,
-    message: "admin registered successfully",
+    message: "Admin registered successfully",
     result: adminDetail,
     token: token,
   });
 };
 
-const adminLogin = async (req, res, next) => {
+const adminLogin = async (req, res) => {
   const adminLoginSchema = joi.object({
     adminEmail: joi.string().email().required(),
     adminPassword: joi
@@ -72,7 +75,10 @@ const adminLogin = async (req, res, next) => {
   });
   const { error } = adminLoginSchema.validate(req.body);
   if (error) {
-    return next(error);
+    return res.status(422).json({
+      success: false,
+      message: error.message
+    });
   }
   let adminData;
   let token;
@@ -81,7 +87,7 @@ const adminLogin = async (req, res, next) => {
     if (!adminData) {
       return res
         .status(404)
-        .json({ success: false, message: "user does not exist" });
+        .json({ success: false, message: "User does not exist" });
     }
     const isPasswordMatch = await bcrypt.compare(
       req.body.adminPassword,
@@ -90,10 +96,13 @@ const adminLogin = async (req, res, next) => {
     if (!isPasswordMatch) {
       return res
         .status(404)
-        .json({ success: false, message: "password not match" });
+        .json({ success: false, message: "Password not match" });
     }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
   token = JWTService.sign({ _id: adminData._id, role: adminData.role });
   adminData = await adminModel.findOne({ adminEmail: req.body.adminEmail });
@@ -105,20 +114,23 @@ const adminLogin = async (req, res, next) => {
   });
 };
 
-const getAllAdminList = async (req, res, next) => {
+const getAllAdminList = async (req, res) => {
   try {
     const adminList = await adminModel.find();
     res.status(200).json({
       status: true,
-      message: `total ${adminList.length} data available`,
+      message: `Data available`,
       adminList: adminList,
     });
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const getSingle = async (req, res, next) => {
+const getSingle = async (req, res) => {
   try {
     const adminData = await adminModel.findById(req.params.id);
     if (adminData) {
@@ -128,12 +140,15 @@ const getSingle = async (req, res, next) => {
         adminData: adminData,
       });
     }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const activeDeActiveUser = async (req, res, next) => {
+const activeDeActiveUser = async (req, res) => {
   let { id } = req.params;
   let role = req.user.role;
   let schoolData;
@@ -142,7 +157,10 @@ const activeDeActiveUser = async (req, res, next) => {
   });
   const { error } = isActiveSchema.validate(req.body);
   if (error) {
-    return next(error);
+    return res.status(422).json({
+      success: false,
+      message: error.message,
+    });
   }
   try {
     if (role === "admin") {
@@ -166,7 +184,10 @@ const activeDeActiveUser = async (req, res, next) => {
       }
     }
   } catch (error) {
-    return next(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 

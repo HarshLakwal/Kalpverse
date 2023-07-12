@@ -1,6 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
+import path from 'path';
 import mainRoute from "./routes/mainRoute.js";
 import dbConnection from "./Model/dbConnect.js";
 import cors from "cors";
@@ -14,6 +15,8 @@ const corsOptions = {
   optionSuccessStatus: 200,
 };
 const app = express();
+const dirname = path.resolve();
+app.use('/uploads', express.static(path.join(dirname, '/uploads')));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/", mainRoute);

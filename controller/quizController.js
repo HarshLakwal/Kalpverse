@@ -64,7 +64,7 @@ let role;
 
 // }
 
-const createQuiz = async (req, res, next) => {
+const createQuiz = async (req, res) => {
   role = req.user.role;
   const questionSchema = joi.object({
     categoryOf: joi.string().required(),
@@ -80,9 +80,11 @@ const createQuiz = async (req, res, next) => {
     }),
   });
   const { error } = questionSchema.validate(req.body);
-
   if (error) {
-    return next(error);
+    return res.status(422).json({
+      success: false,
+      message: error.message
+    });
   }
   try {
     role = req.user.role;
@@ -118,12 +120,15 @@ const createQuiz = async (req, res, next) => {
         message: "you are not a authorized person",
       });
     }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const getAllQuiz = async (req, res, next) => {
+const getAllQuiz = async (req, res) => {
   role = req.user.role;
   try {
     if (role === "admin") {
@@ -152,12 +157,15 @@ const getAllQuiz = async (req, res, next) => {
         message: "you are not a authorized person",
       });
     }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const getSingleQuiz = async (req, res, next) => {
+const getSingleQuiz = async (req, res) => {
   role = req.user.role;
   const { quizId } = req.params;
   try {
@@ -187,8 +195,11 @@ const getSingleQuiz = async (req, res, next) => {
         message: "you are not a authorized person",
       });
     }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
@@ -242,11 +253,14 @@ const update = async (req, res, next) => {
       });
     }
   } catch (error) {
-    return next(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const checkAnswer = async (req, res, next) => {
+const checkAnswer = async (req, res) => {
   role = req.user.role;
   const { quizId } = req.params;
   let totalQuestions = 0;
@@ -302,11 +316,14 @@ const checkAnswer = async (req, res, next) => {
       });
     }
   } catch (error) {
-    return next(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const deleteQuiz = async (req, res, next) => {
+const deleteQuiz = async (req, res) => {
   role = req.user.role;
   let { quizId } = req.params;
   try {
@@ -331,7 +348,10 @@ const deleteQuiz = async (req, res, next) => {
       });
     }
   } catch (error) {
-    return next(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 

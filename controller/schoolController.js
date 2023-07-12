@@ -43,7 +43,7 @@ const validateUser = (user, requestType) => {
   return schoolRegisterSchema.tailor(requestType).validate(user);
 };
 
-const schoolRegister = async (req, res, next) => {
+const schoolRegister = async (req, res) => {
   // const schoolRegisterSchema = joi.object({
   //     schoolName: joi.string().required(),
   //     schoolEmail: joi.string().email().required(),
@@ -63,7 +63,10 @@ const schoolRegister = async (req, res, next) => {
 
   const { error } = validateUser(req.body, "post");
   if (error) {
-    return next(error);
+    return res.status(422).json({
+      success: false,
+      message: error.message
+    });
   }
   let fileName;
   if (req.file) {
@@ -109,13 +112,16 @@ const schoolRegister = async (req, res, next) => {
         message: "You are not a authorized person",
       });
     }
-  } catch (err) {
+  } catch (error) {
    // fs.unlinkSync(req.file.path);
-    return next(err);
+   return res.status(500).json({
+    success: false,
+    message: error.message
+  });
   }
 };
 
-const schoolLogin = async (req, res, next) => {
+const schoolLogin = async (req, res) => {
   const schoolLoginSchema = joi.object({
     schoolEmail: joi.string().email().required(),
     schoolPassword: joi
@@ -125,7 +131,10 @@ const schoolLogin = async (req, res, next) => {
   });
   const { error } = schoolLoginSchema.validate(req.body);
   if (error) {
-    return next(error);
+    return res.status(422).json({
+      success: false,
+      message: error.message
+    });
   }
   try {
     // role = req.user.role
@@ -164,12 +173,15 @@ const schoolLogin = async (req, res, next) => {
     //         message: 'You are not a authorized person'
     //     })
     // }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const allSchoolList = async (req, res, next) => {
+const allSchoolList = async (req, res) => {
   role = req.user.role;
   try {
     if (role === "admin") {
@@ -185,12 +197,15 @@ const allSchoolList = async (req, res, next) => {
         message: "You are not a authorized person",
       });
     }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const schoolUpdate = async (req, res, next) => {
+const schoolUpdate = async (req, res) => {
   role = req.user.role;
   let fileName;
   let currentProfile;
@@ -202,15 +217,21 @@ const schoolUpdate = async (req, res, next) => {
   const { error } = validateUser(req.body, "patch");
   if (error) {
     fs.unlinkSync(req.file.path);
-    return next(error);
+    return res.status(422).json({
+      success: false,
+      message: error.message
+    });
   }
   try {
     if (role === "admin") {
       try {
         const data = await schoolModel.findById({ _id: req.params.id });
         currentProfile = data.profilePic;
-      } catch (err) {
-        return next(err);
+      } catch (error) {
+        return res.status(500).json({
+          success: false,
+          message: error.message
+        });
       }
       const schoolData = await schoolModel.findByIdAndUpdate(req.params.id, {
         $set: {
@@ -236,11 +257,14 @@ const schoolUpdate = async (req, res, next) => {
     }
   } catch (error) {
     fs.unlinkSync(req.file.path);
-    return next(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const schoolDelete = async (req, res, next) => {
+const schoolDelete = async (req, res) => {
   role = req.user.role;
   try {
     if (role === "admin") {
@@ -263,11 +287,14 @@ const schoolDelete = async (req, res, next) => {
       });
     }
   } catch (error) {
-    return next(err);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
-const getSingleSchool = async (req, res, next) => {
+const getSingleSchool = async (req, res) => {
   // role = req.user.role
   const id = req.params.id;
   try {
@@ -292,8 +319,11 @@ const getSingleSchool = async (req, res, next) => {
     //         message: 'You are not a authorized person'
     //     })
     // }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 
