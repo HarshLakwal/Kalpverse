@@ -118,7 +118,7 @@ const getAllAdminList = async (req, res) => {
   try {
     const adminList = await adminModel.find();
     res.status(200).json({
-      status: true,
+      success: true,
       message: `Data available`,
       adminList: adminList,
     });
@@ -135,7 +135,7 @@ const getSingle = async (req, res) => {
     const adminData = await adminModel.findById(req.params.id);
     if (adminData) {
       return res.status(200).json({
-        status: true,
+        success: true,
         message: `Admin data successfully fetch`,
         adminData: adminData,
       });

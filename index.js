@@ -21,7 +21,6 @@ const corsOptions = {
 }
 app.use(cors(corsOptions));
 app.use("/", mainRoute);
-app.use(cors(corsOptions));
 
 const server = app.listen(process.env.PORT, () => {
   console.log(`Server is running on ${process.env.PORT}🚀 `);

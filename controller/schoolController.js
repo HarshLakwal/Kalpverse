@@ -185,8 +185,8 @@ const allSchoolList = async (req, res) => {
     if (role === "admin") {
       const schoolList = await schoolModel.find();
       res.status(200).json({
-        status: true,
-        message: `Total ${schoolList.length} data available`,
+        success: true,
+        message: `Success`,
         schoolList: schoolList,
       });
     } else {
@@ -300,7 +300,7 @@ const getSingleSchool = async (req, res) => {
     schoolData = await schoolModel.findOne({ _id: id });
     if (schoolData) {
       return res.status(200).json({
-        status: true,
+        success: true,
         message: `This is the school details`,
         schoolData: schoolData,
       });

@@ -129,13 +129,13 @@ const getAllQuiz = async (req, res) => {
       const quizList = await questionModel.find();
       if (quizList != null) {
         return res.status(200).json({
-          status: true,
+          success: true,
           message: "Success",
           quizList: quizList,
         });
       } else {
         return res.status(400).json({
-          status: true,
+          success: false,
           message: "No data found",
         });
       }
@@ -161,13 +161,13 @@ const getSingleQuiz = async (req, res) => {
       const quizData = await questionModel.findById(quizId);
       if (quizData) {
         return res.status(200).json({
-          status: true,
+          success: true,
           message: "Success",
           quizData: quizData,
         });
       } else {
         return res.status(400).json({
-          status: true,
+          success: false,
           message: "No data found",
         });
       }

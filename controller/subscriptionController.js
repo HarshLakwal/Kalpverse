@@ -62,7 +62,7 @@ const allPlanList = async (req, res) => {
   try {
       const subscriptionPlanList = await subscriptionPlanSchema.find();
       res.status(200).json({
-        status: true,
+        success: true,
         message: `success`,
         subscriptionPlanList: subscriptionPlanList,
       });
@@ -170,7 +170,7 @@ const getPlanDetail = async (req, res) => {
         _id: id,
       });
       res.status(200).json({
-        status: true,
+        success: true,
         message: `${subscriptionPlanData.subscriptionTitle} detail`,
         detail: subscriptionPlanData,
       });
