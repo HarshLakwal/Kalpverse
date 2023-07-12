@@ -83,7 +83,7 @@ const createQuiz = async (req, res) => {
   if (error) {
     return res.status(422).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
   try {
@@ -100,19 +100,13 @@ const createQuiz = async (req, res) => {
           success: false,
           message: "Quiz already exist",
         });
-      }
-      else {
+      } else {
         await questionData.save();
         return res.status(201).json({
           success: true,
           message: `Question ${req.body.categoryOf} category added successfully `,
           data: questionData,
         });
-    //   } else {
-    //     return res.status(401).json({
-    //       success: true,
-    //       message: `Please fallow proper structure`,
-    //     });
       }
     } else {
       return res.status(404).json({
@@ -123,7 +117,7 @@ const createQuiz = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -133,24 +127,18 @@ const getAllQuiz = async (req, res) => {
   try {
     if (role === "admin") {
       const quizList = await questionModel.find();
-      let size = quizList.length;
-      let message;
-      if (size > 1) {
-        message = `Total ${size} quizzes available`;
-      } else if (size < 1) {
-        message = `No quiz found`;
-        return res.status(400).json({
+      if (quizList != null) {
+        return res.status(200).json({
           status: true,
-          message: message,
+          message: "Success",
+          quizList: quizList,
         });
       } else {
-        message = `Total ${size} quiz available`;
+        return res.status(400).json({
+          status: true,
+          message: "No data found",
+        });
       }
-      return res.status(200).json({
-        status: true,
-        message: message,
-        adminList: quizList,
-      });
     } else {
       return res.status(404).json({
         success: false,
@@ -160,7 +148,7 @@ const getAllQuiz = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -170,25 +158,19 @@ const getSingleQuiz = async (req, res) => {
   const { quizId } = req.params;
   try {
     if (role === "admin") {
-      const quizList = await questionModel.findById(quizId);
-      let size = quizList.questions.length;
-      let message;
-      if (size > 1) {
-        message = `Total ${size} questions available in ${quizList.categoryOf} category`;
-      } else if (size < 1) {
-        message = `No quiz found`;
-        return res.status(400).json({
+      const quizData = await questionModel.findById(quizId);
+      if (quizData) {
+        return res.status(200).json({
           status: true,
-          message: message,
+          message: "Success",
+          quizData: quizData,
         });
       } else {
-        message = `Total ${size} question available`;
+        return res.status(400).json({
+          status: true,
+          message: "No data found",
+        });
       }
-      return res.status(200).json({
-        status: true,
-        message: message,
-        adminList: quizList,
-      });
     } else {
       return res.status(404).json({
         success: false,
@@ -198,7 +180,7 @@ const getSingleQuiz = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -255,7 +237,7 @@ const update = async (req, res, next) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -318,7 +300,7 @@ const checkAnswer = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -350,9 +332,16 @@ const deleteQuiz = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
-export default { createQuiz, getAllQuiz, getSingleQuiz, checkAnswer, update, deleteQuiz};
+export default {
+  createQuiz,
+  getAllQuiz,
+  getSingleQuiz,
+  checkAnswer,
+  update,
+  deleteQuiz,
+};

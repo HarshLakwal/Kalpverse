@@ -63,8 +63,8 @@ const allPlanList = async (req, res) => {
       const subscriptionPlanList = await subscriptionPlanSchema.find();
       res.status(200).json({
         status: true,
-        message: `total ${subscriptionPlanList.length} data available`,
-        userList: subscriptionPlanList,
+        message: `success`,
+        subscriptionPlanList: subscriptionPlanList,
       });
 
   } catch (error) {

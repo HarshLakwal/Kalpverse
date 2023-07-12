@@ -90,9 +90,7 @@ const schoolRegister = async (req, res) => {
           req.body.schoolPassword,
           10
         );
-        (schoolData.profilePic = fileName
-          ? `/uploads/${fileName}`
-          : "default.jpg"),
+        (schoolData.profilePic = fileName ? fileName : "default.jpg" ),
           (schoolDetail = await schoolData.save());
 
         token = JWTService.sign({ _id: schoolData._id, role: schoolData.role });
@@ -240,7 +238,7 @@ const schoolUpdate = async (req, res) => {
           schoolCity: req.body.schoolCity,
           schoolState: req.body.schoolState,
           schoolPhone: req.body.schoolPhone,
-          profilePic: fileName ? `/uploads/${fileName}` : currentProfile,
+          profilePic: fileName ? fileName : currentProfile,
         },
       });
       if (schoolData) {
