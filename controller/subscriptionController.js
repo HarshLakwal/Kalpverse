@@ -45,7 +45,7 @@ const subscriptionAdd = async (req, res) => {
         });
       }
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "you are not a authorized person",
       });
@@ -119,7 +119,7 @@ const planUpdate = async (req, res) => {
         });
       }
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "you are not a authorized person",
       });
@@ -150,7 +150,7 @@ const planDelete = async (req, res) => {
         });
       }
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "you are not a authorized person",
       });

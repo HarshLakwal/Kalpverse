@@ -2,19 +2,20 @@ import mongoose from "mongoose";
 
 const questionSchema = new mongoose.Schema(
   {
-    // quizTitle: { type: String },
-    categoryOf: { type: String },
+    quizTitle: { type: String, required: true },
+    categoryOf: { type: String, required: true },
     questions: [
       {
-        question: { type: String },
+        question: { type: String, required: true },
         options: {
-          option1: { type: String },
-          option2: { type: String },
-          option3: { type: String },
-          option4: { type: String },
+          option1: { type: String, required: true },
+          option2: { type: String, required: true },
+          option3: { type: String, required: true },
+          option4: { type: String, required: true },
         },
         correctAnswer: {
           type: String,
+          required: true,
         },
       },
     ],

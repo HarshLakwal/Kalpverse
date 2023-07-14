@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 class JWTService {
-  static sign(payload, expiry = "5d", secret = process.env.JWT_SECRET) {
+  static sign(payload, expiry = "30d", secret = process.env.JWT_SECRET) {
     return jwt.sign(payload, secret, { expiresIn: expiry });
   }
 
@@ -13,4 +13,4 @@ class JWTService {
   }
 }
 export default JWTService;
-//vnsdkklfgmlrgbkbndkdnhovbf'bnrk lbdfh
+

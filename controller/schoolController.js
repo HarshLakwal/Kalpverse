@@ -4,81 +4,186 @@ import schoolModel from "../Model/schoolModelSchema.js";
 import JWTService from "../services/JWTService.js";
 import fs from "fs";
 import fork from "fork";
-import { Schema } from "mongoose";
+import { Schema, set } from "mongoose";
 
 let token;
 let schoolDetail;
 let role;
 let schoolData;
 
-const validateUser = (user, requestType) => {
+// const validateUser = (user, requestType) => {
+//   const schoolRegisterSchema = joi.object({
+//     schoolName: joi.string().required(),
+//     schoolEmail: joi
+//       .string()
+//       .email()
+//       .alter({
+//         post: (schoolRegisterSchema) => schoolRegisterSchema.required(),
+//         patch: (schoolRegisterSchema) => schoolRegisterSchema.forbidden(),
+//       }),
+//     schoolPassword: joi
+//       .string()
+//       .pattern(new RegExp("^[a-zA-Z0-9]{3,30}"))
+//       .alter({
+//         post: (schoolRegisterSchema) => schoolRegisterSchema.required(),
+//         patch: (schoolRegisterSchema) => schoolRegisterSchema.forbidden(),
+//       }),
+//     confirmPassword: joi.ref("schoolPassword"),
+//     schoolAddress: joi.string().required(),
+//     schoolCity: joi.string().required(),
+//     schoolState: joi.string().required(),
+//     schoolPhone: joi
+//       .string()
+//       .length(10)
+//       .pattern(/^[0-9]+$/)
+//       .required(),
+//     role: joi.string().default("school"),
+//     profilePic: joi.string().default("default.jpg"),
+//   });
+//   return schoolRegisterSchema.tailor(requestType).validate(user);
+// };
+
+
+const validateSchoolUpdate = (user) => {
   const schoolRegisterSchema = joi.object({
     schoolName: joi.string().required(),
-    schoolEmail: joi
-      .string()
-      .email()
-      .alter({
-        post: (schoolRegisterSchema) => schoolRegisterSchema.required(),
-        patch: (schoolRegisterSchema) => schoolRegisterSchema.forbidden(),
-      }),
-    schoolPassword: joi
-      .string()
-      .pattern(new RegExp("^[a-zA-Z0-9]{3,30}"))
-      .alter({
-        post: (schoolRegisterSchema) => schoolRegisterSchema.required(),
-        patch: (schoolRegisterSchema) => schoolRegisterSchema.forbidden(),
-      }),
-    confirmPassword: joi.ref("schoolPassword"),
-    schoolAddress: joi.string().required(),
-    schoolCity: joi.string().required(),
+    schoolEmail: joi.string().email().required(),
     schoolState: joi.string().required(),
-    schoolPhone: joi
-      .string()
-      .length(10)
-      .pattern(/^[0-9]+$/)
-      .required(),
-    role: joi.string().default("school"),
-    profilePic: joi.string().default("default.jpg"),
+    schoolAddress: joi.string().required(),
+    schoolPhone: joi.string().length(10).pattern(/^[0-9]+$/).required(),
+    loginDevices: joi.object().keys({
+      devices:joi.array().items({
+        deviceId: joi.string().required(),
+      }),
+    }),
   });
-  return schoolRegisterSchema.tailor(requestType).validate(user);
+
+  return schoolRegisterSchema.validate(user);
 };
 
-const schoolRegister = async (req, res) => {
-  // const schoolRegisterSchema = joi.object({
-  //     schoolName: joi.string().required(),
-  //     schoolEmail: joi.string().email().required(),
-  //     schoolPassword: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}')).required(),
-  //     confirmPassword: joi.ref('schoolPassword'),
-  //     schoolAddress: joi.string().required(),
-  //     schoolCity: joi.string().required(),
-  //     schoolState: joi.string().required(),
-  //     schoolPhone: joi.string().required(),
-  //     role: joi.string().default('school'),
-  //     profilePic: joi.string().default('default.jpg'),
-  // })
-  // const { error } = schoolRegisterSchema.validate(req.body)
-  // if (error) {
-  //     return next(error);
-  // }
+const validateUser = (user) => {
+  const schoolRegisterSchema = joi.object({
+    schoolName: joi.string().required(),
+    schoolEmail: joi.string().email().required(),
+    schoolState: joi.string().required(),
+    schoolAddress: joi.string().required(),
+    schoolPhone: joi.string().length(10).pattern(/^[0-9]+$/).required(),
+    loginDevices: joi.object().keys({
+      email:joi.string().email().required(),
+      password:joi.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}")).required(),
+      confirmPassword: joi.ref("password"),
+      devices:joi.array().items({
+        deviceId: joi.string().required(),
+      }),
+    }),
+    role: joi.string().default("school"),
+    logo: joi.string().default("default.jpg"),
+  });
 
-  const { error } = validateUser(req.body, "post");
+  return schoolRegisterSchema.validate(user);
+};
+
+// const schoolRegister = async (req, res) => {
+//   // const schoolRegisterSchema = joi.object({
+//   //     schoolName: joi.string().required(),
+//   //     schoolEmail: joi.string().email().required(),
+//   //     schoolPassword: joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}')).required(),
+//   //     confirmPassword: joi.ref('schoolPassword'),
+//   //     schoolAddress: joi.string().required(),
+//   //     schoolCity: joi.string().required(),
+//   //     schoolState: joi.string().required(),
+//   //     schoolPhone: joi.string().required(),
+//   //     role: joi.string().default('school'),
+//   //     profilePic: joi.string().default('default.jpg'),
+//   // })
+//   // const { error } = schoolRegisterSchema.validate(req.body)
+//   // if (error) {
+//   //     return next(error);
+//   // }
+
+//   const { error } = validateUser(req.body, "post");
+//   if (error) {
+//     return res.status(422).json({
+//       success: false,
+//       message: error.message
+//     });
+//   }
+//   let fileName;
+//   if (req.file) {
+//     fileName = req.file.filename;
+//   }
+//   try {
+//     role = req.user.role;
+//     if (role === "admin") {
+//       schoolData = new schoolModel(req.body);
+//       let emailExist = await schoolModel.findOne({
+//         schoolEmail: req.body.schoolEmail,
+//       });
+//       if (emailExist) {
+//        // fs.unlinkSync(req.file.path);
+//         return res.status(404).json({
+//           success: false,
+//           message: "School already exist",
+//         });
+//       } else {
+//         schoolData.schoolPassword = await bcrypt.hash(
+//           req.body.schoolPassword,
+//           10
+//         );
+//         (schoolData.profilePic = fileName ? fileName : "default.jpg" ),
+//           (schoolDetail = await schoolData.save());
+
+//         token = JWTService.sign({ _id: schoolData._id, role: schoolData.role });
+//         schoolDetail.schoolPassword = undefined;
+
+//         return res.status(201).json({
+//           success: true,
+//           message: "School registered successfully",
+//           result: schoolDetail,
+//           token: token,
+//         });
+//       }
+//     } else {
+//      // fs.unlinkSync(req.file.path);
+//       return res.status(401).json({
+//         success: false,
+//         message: "You are not a authorized person",
+//       });
+//     }
+//   } catch (error) {
+//    // fs.unlinkSync(req.file.path);
+//    return res.status(500).json({
+//     success: false,
+//     message: error.message
+//   });
+//   }
+// };
+
+const schoolRegister = async (req, res) => {
+  const { error } = validateUser(req.body);
   if (error) {
     return res.status(422).json({
       success: false,
       message: error.message
     });
   }
+
+  let password =req.body.loginDevices.password
+  let email =req.body.loginDevices.email
+  let role = req.user.role;
   let fileName;
   if (req.file) {
     fileName = req.file.filename;
   }
+
   try {
-    role = req.user.role;
     if (role === "admin") {
       schoolData = new schoolModel(req.body);
-      let emailExist = await schoolModel.findOne({
-        schoolEmail: req.body.schoolEmail,
-      });
+      console.log("role",role)
+      console.log("schoolData",req.body)
+      
+      let emailExist = await schoolModel.findOne({ "loginDevices.email": email });
+     
       if (emailExist) {
        // fs.unlinkSync(req.file.path);
         return res.status(404).json({
@@ -86,15 +191,14 @@ const schoolRegister = async (req, res) => {
           message: "School already exist",
         });
       } else {
-        schoolData.schoolPassword = await bcrypt.hash(
-          req.body.schoolPassword,
-          10
-        );
-        (schoolData.profilePic = fileName ? fileName : "default.jpg" ),
+      
+        schoolData.loginDevices.password = await bcrypt.hash(
+         password,10);
+        (schoolData.logo = fileName ? fileName : "default.jpg" ),
           (schoolDetail = await schoolData.save());
 
         token = JWTService.sign({ _id: schoolData._id, role: schoolData.role });
-        schoolDetail.schoolPassword = undefined;
+        schoolDetail.loginDevices.password = undefined;
 
         return res.status(201).json({
           success: true,
@@ -105,7 +209,7 @@ const schoolRegister = async (req, res) => {
       }
     } else {
      // fs.unlinkSync(req.file.path);
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "You are not a authorized person",
       });
@@ -119,10 +223,71 @@ const schoolRegister = async (req, res) => {
   }
 };
 
+// const schoolLogin = async (req, res) => {
+//   const schoolLoginSchema = joi.object({
+//     schoolEmail: joi.string().email().required(),
+//     schoolPassword: joi
+//       .string()
+//       .pattern(new RegExp("^[a-zA-Z0-9]{3,30}"))
+//       .required(),
+//   });
+//   const { error } = schoolLoginSchema.validate(req.body);
+//   if (error) {
+//     return res.status(422).json({
+//       success: false,
+//       message: error.message
+//     });
+//   }
+//   try {
+//     // role = req.user.role
+//     let { schoolEmail, schoolPassword } = req.body;
+//     // if (role === "school" || role === "admin") {
+//     schoolData = await schoolModel.findOne({ schoolEmail: schoolEmail });
+//     if (!schoolData) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "School does not exist",
+//       });
+//     }
+//     console.log("pasward", schoolData.schoolPassword);
+//     const isPasswordMatch = await bcrypt.compare(
+//       schoolPassword,
+//       schoolData.schoolPassword
+//     );
+//     if (!isPasswordMatch) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Password not match",
+//       });
+//     }
+
+//     token = JWTService.sign({ _id: schoolData._id, role: schoolData.role });
+//     // schoolData = await schoolModel.findOne({ schoolEmail: req.body.schoolEmail })
+//     return res.status(200).json({
+//       success: true,
+//       message: "Login Successful",
+//       token: token,
+//       schoolData: schoolData,
+//     });
+//     // } else {
+//     //     return res.status(404).json({
+//     //         success: false,
+//     //         message: 'You are not a authorized person'
+//     //     })
+//     // }
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message
+//     });
+//   }
+// };
+
+
 const schoolLogin = async (req, res) => {
   const schoolLoginSchema = joi.object({
-    schoolEmail: joi.string().email().required(),
-    schoolPassword: joi
+    email: joi.string().email().required(),
+    password: joi
       .string()
       .pattern(new RegExp("^[a-zA-Z0-9]{3,30}"))
       .required(),
@@ -136,19 +301,19 @@ const schoolLogin = async (req, res) => {
   }
   try {
     // role = req.user.role
-    let { schoolEmail, schoolPassword } = req.body;
+    let { email, password } = req.body;
     // if (role === "school" || role === "admin") {
-    schoolData = await schoolModel.findOne({ schoolEmail: schoolEmail });
+    schoolData = await schoolModel.findOne({ "loginDevices.email": email });
     if (!schoolData) {
       return res.status(404).json({
         success: false,
         message: "School does not exist",
       });
     }
-    console.log("pasward", schoolData.schoolPassword);
+
     const isPasswordMatch = await bcrypt.compare(
-      schoolPassword,
-      schoolData.schoolPassword
+      password,
+      schoolData.loginDevices.password
     );
     if (!isPasswordMatch) {
       return res.status(404).json({
@@ -190,7 +355,7 @@ const allSchoolList = async (req, res) => {
         schoolList: schoolList,
       });
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "You are not a authorized person",
       });
@@ -203,6 +368,65 @@ const allSchoolList = async (req, res) => {
   }
 };
 
+// const schoolUpdate = async (req, res) => {
+//   role = req.user.role;
+//   let fileName;
+//   let currentProfile;
+//   if (req.file) {
+//     fileName = req.file.filename;
+//   }
+//   // const updateSchema = validateUser.schoolRegisterSchema.fork(Object.keys(req.body), (schema)=> schema.optional());
+//   //const {error , value } = updateSchema.validate(req.body)
+//   const { error } = validateUser(req.body);
+//   if (error) {
+//     fs.unlinkSync(req.file.path);
+//     return res.status(422).json({
+//       success: false,
+//       message: error.message
+//     });
+//   }
+//   try {
+//     if (role === "admin") {
+//       try {
+//         const data = await schoolModel.findById({ _id: req.params.id });
+//         currentProfile = data.profilePic;
+//       } catch (error) {
+//         return res.status(500).json({
+//           success: false,
+//           message: error.message
+//         });
+//       }
+//       const schoolData = await schoolModel.findByIdAndUpdate(req.params.id, {
+//         $set: {
+//           schoolName: req.body.schoolName,
+//           schoolAddress: req.body.schoolAddress,
+//           schoolCity: req.body.schoolCity,
+//           schoolState: req.body.schoolState,
+//           schoolPhone: req.body.schoolPhone,
+//           profilePic: fileName ? fileName : currentProfile,
+//         },
+//       });
+//       if (schoolData) {
+//         res.status(200).json({
+//           success: true,
+//           message: `Update school successfully.`,
+//         });
+//       }
+//     } else {
+//       return res.status(401).json({
+//         success: false,
+//         message: "You are not a authorized person",
+//       });
+//     }
+//   } catch (error) {
+//     fs.unlinkSync(req.file.path);
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message
+//     });
+//   }
+// };
+
 const schoolUpdate = async (req, res) => {
   role = req.user.role;
   let fileName;
@@ -212,7 +436,8 @@ const schoolUpdate = async (req, res) => {
   }
   // const updateSchema = validateUser.schoolRegisterSchema.fork(Object.keys(req.body), (schema)=> schema.optional());
   //const {error , value } = updateSchema.validate(req.body)
-  const { error } = validateUser(req.body, "patch");
+
+  const { error } = validateSchoolUpdate(req.body);
   if (error) {
     fs.unlinkSync(req.file.path);
     return res.status(422).json({
@@ -224,23 +449,14 @@ const schoolUpdate = async (req, res) => {
     if (role === "admin") {
       try {
         const data = await schoolModel.findById({ _id: req.params.id });
-        currentProfile = data.profilePic;
+        currentProfile = data.logo;
       } catch (error) {
         return res.status(500).json({
           success: false,
           message: error.message
         });
       }
-      const schoolData = await schoolModel.findByIdAndUpdate(req.params.id, {
-        $set: {
-          schoolName: req.body.schoolName,
-          schoolAddress: req.body.schoolAddress,
-          schoolCity: req.body.schoolCity,
-          schoolState: req.body.schoolState,
-          schoolPhone: req.body.schoolPhone,
-          profilePic: fileName ? fileName : currentProfile,
-        },
-      });
+      const schoolData = await schoolModel.findByIdAndUpdate( req.params.id ,req.body);
       if (schoolData) {
         res.status(200).json({
           success: true,
@@ -248,7 +464,7 @@ const schoolUpdate = async (req, res) => {
         });
       }
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "You are not a authorized person",
       });
@@ -261,6 +477,7 @@ const schoolUpdate = async (req, res) => {
     });
   }
 };
+
 
 const schoolDelete = async (req, res) => {
   role = req.user.role;
@@ -279,7 +496,7 @@ const schoolDelete = async (req, res) => {
         });
       }
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "You are not a authorized person",
       });

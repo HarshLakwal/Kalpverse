@@ -67,6 +67,7 @@ let role;
 const createQuiz = async (req, res) => {
   role = req.user.role;
   const questionSchema = joi.object({
+    quizTitle:joi.string().required(),
     categoryOf: joi.string().required(),
     questions: joi.array().items({
       question: joi.string().required(),
@@ -83,7 +84,7 @@ const createQuiz = async (req, res) => {
   if (error) {
     return res.status(422).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
   try {
@@ -109,7 +110,7 @@ const createQuiz = async (req, res) => {
         });
       }
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "you are not a authorized person",
       });
@@ -140,7 +141,7 @@ const getAllQuiz = async (req, res) => {
         });
       }
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "you are not a authorized person",
       });
@@ -172,7 +173,7 @@ const getSingleQuiz = async (req, res) => {
         });
       }
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "you are not a authorized person",
       });
@@ -229,7 +230,7 @@ const update = async (req, res, next) => {
         });
       }
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "you are not a authorized person",
       });
@@ -283,7 +284,12 @@ const checkAnswer = async (req, res) => {
         wrongAnswer = attemptQuestions - rightAnswer;
         return res.status(200).json({
           success: true,
-          message: `Total question ${totalQuestions}, attempt questions ${attemptQuestions}, right answer ${rightAnswer} and wrong answer ${wrongAnswer}`,
+          message: "Your result",
+          totalQuestions: totalQuestions,
+          attemptQuestions: attemptQuestions,
+          rightAnswer: rightAnswer,
+          wrongAnswer: wrongAnswer
+         // message: `Total question ${totalQuestions}, attempt questions ${attemptQuestions}, right answer ${rightAnswer} and wrong answer ${wrongAnswer}`,
         });
       } else {
         return res.status(403).json({
@@ -292,7 +298,7 @@ const checkAnswer = async (req, res) => {
         });
       }
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "you are not a authorized person",
       });
@@ -324,7 +330,7 @@ const deleteQuiz = async (req, res) => {
         });
       }
     } else {
-      return res.status(404).json({
+      return res.status(401).json({
         success: false,
         message: "you are not a authorized person",
       });

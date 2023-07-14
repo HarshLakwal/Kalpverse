@@ -116,6 +116,10 @@ const adminLogin = async (req, res) => {
 
 const getAllAdminList = async (req, res) => {
   try {
+    // const limitValue = req.query.limit || 2;
+    // const skipValue = req.query.skip || 0;
+    // const adminList = await adminModel.find().limit(limitValue).skip(skipValue);
+    
     const adminList = await adminModel.find();
     res.status(200).json({
       success: true,
@@ -190,6 +194,40 @@ const activeDeActiveUser = async (req, res) => {
     });
   }
 };
+
+
+// function paginatedResults(model) {
+//   // middleware function
+//   return (req, res, next) => {
+//     const page = parseInt(req.query.page) || 2;
+//     const limit = parseInt(req.query.limit) || 0;
+ 
+//     // calculating the starting and ending index
+//     const startIndex = (page - 1) * limit;
+//     const endIndex = page * limit;
+ 
+//     const results = {};
+//     if (endIndex < model.length) {
+//       results.next = {
+//         page: page + 1,
+//         limit: limit
+//       };
+//     }
+ 
+//     if (startIndex > 0) {
+//       results.previous = {
+//         page: page - 1,
+//         limit: limit
+//       };
+//     }
+ 
+//     results.results = model.slice(startIndex, endIndex);
+ 
+//     res.paginatedResults = results;
+//     next();
+//   };
+// }
+
 
 export default {
   adminRegister,
