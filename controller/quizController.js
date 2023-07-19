@@ -124,9 +124,9 @@ const createQuiz = async (req, res) => {
 };
 
 const getAllQuiz = async (req, res) => {
-  console.log(req.url, "url")
-  console.log(req.method, "method")
-  console.log(req.originalUrl, "originUrl")
+  console.log(req.url, "url");
+  console.log(req.method, "method");
+  console.log(req.originalUrl, "originUrl");
   role = req.user.role;
   try {
     if (role === "admin") {
@@ -168,6 +168,41 @@ const getSingleQuiz = async (req, res) => {
           success: true,
           message: "Success",
           quizData: quizData,
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "No data found",
+        });
+      }
+    } else {
+      return res.status(401).json({
+        success: false,
+        message: "you are not a authorized person",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getSingleQuestion = async (req, res) => {
+  role = req.user.role;
+  let { quizId, questionId } = req.params;
+  try {
+    if (role === "admin") {
+      const quizData = await questionModel.findOne(
+        { _id: quizId },
+        { questions: { $elemMatch: { _id: questionId } } }
+      );
+      if (quizData) {
+        return res.status(200).json({
+          success: true,
+          message: "Success",
+          question: quizData,
         });
       } else {
         return res.status(400).json({
@@ -335,4 +370,5 @@ export default {
   checkAnswer,
   deleteQuiz,
   updateSingleQuestion,
+  getSingleQuestion,
 };
