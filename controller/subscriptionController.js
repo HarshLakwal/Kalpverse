@@ -102,10 +102,11 @@ const planUpdate = async (req, res) => {
           $set: {
             subscriptionTitle: req.body.subscriptionTitle,
             subscriptionPrice: req.body.subscriptionPrice,
-            subscriptionLimit: req.body.subscriptionLimit,
+            subscriptionValidity: req.body.subscriptionValidity,
             // "subscriptionExpireAt":subscriptionExpireAt
-          },
-        });
+          }
+        }, 
+        { new: true });
       if (subscriptionPlanData) {
         res.status(200).json({
           success: true,

@@ -6,7 +6,7 @@ import fs from "fs";
 import schoolModel from "../Model/schoolModelSchema.js";
 
 
-const adminRegister = async (req, res) => {
+const validateAdmin = (user) => {
   const adminRegisterSchema = joi.object({
     adminName: joi.string().required(),
     adminEmail: joi.string().email().required(),
@@ -15,7 +15,11 @@ const adminRegister = async (req, res) => {
     role: joi.string().default("admin"),
     profilePic: joi.string().default("default.jpg"),
   });
-  const { error } = adminRegisterSchema.validate(req.body);
+  return adminRegisterSchema.validate(user);
+};
+
+const adminRegister = async (req, res) => {
+  const { error } = validateAdmin(req.body);
   if (error) {
     return res.status(422).json({
       success: false,

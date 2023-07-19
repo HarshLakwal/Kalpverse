@@ -43,7 +43,6 @@ let schoolData;
 //   return schoolRegisterSchema.tailor(requestType).validate(user);
 // };
 
-
 const validateSchoolUpdate = (user) => {
   const schoolRegisterSchema = joi.object({
     schoolName: joi.string().required(),

@@ -7,7 +7,7 @@ router.use(auth);
 router.post("/create", quizController.createQuiz);
 router.get("/get-all", quizController.getAllQuiz);
 router.get("/get-single/:quizId", quizController.getSingleQuiz);
-router.patch("/update/:quizId", quizController.update);
+router.patch("/update/:quizId/:questionId", quizController.updateSingleQuestion);
 router.delete("/delete/:quizId", quizController.deleteQuiz);
 router.post("/result/:quizId", quizController.checkAnswer);
 

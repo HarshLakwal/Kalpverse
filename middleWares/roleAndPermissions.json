@@ -1,0 +1,129 @@
+{
+  "roleName": "ADMIN",
+  "permissions": [
+    {
+      "subRoleName": "ADMIN",
+      "permissions": [
+        {
+          "name": "Create Admin",
+          "method": "POST",
+          "route": "/register",
+          "isPermission": true
+        },
+        {
+          "name": "Get Single Admin Detail",
+          "method": "GET",
+          "route": "/get-single/:id",
+          "isPermission": true
+        },
+        {
+          "name": "Get All Admin Detail List",
+          "method": "GET",
+          "route": "/get-all",
+          "isPermission": true
+        },
+        {
+          "name": "Active Deactivate School",
+          "method": "POST",
+          "route": "/activate-deactivateSchool/:id",
+          "isPermission": true
+        },
+        {
+          "name": "Add School",
+          "method": "POST",
+          "route": "/register",
+          "isPermission": true
+        },
+        {
+          "name": "Update School",
+          "method": "PATCH",
+          "route": "/update/:id",
+          "isPermission": true
+        },
+        {
+          "name": "Delete School",
+          "method": "DELETE",
+          "route": "/delete/:id",
+          "isPermission": true
+        },
+        {
+          "name": "Create Quiz",
+          "method": "POST",
+          "route": "/create",
+          "isPermission": true
+        },
+        {
+          "name": "Get All Quiz",
+          "method": "GET",
+          "route": "/get-all",
+          "isPermission": true
+        },
+        {
+          "name": "Get Single Quiz Details",
+          "method": "GET",
+          "route": "/get-single/:quizId",
+          "isPermission": true
+        },
+        {
+          "name": "Update Quiz Question",
+          "method": "PATCH",
+          "route": "/update/:quizId/:questionId",
+          "isPermission": true
+        },
+        {
+          "name": "Delete Quiz",
+          "method": "DELETE",
+          "route": "/delete/:quizId",
+          "isPermission": true
+        },
+        {
+          "name": "Check Result",
+          "method": "POST",
+          "route": "/result/:quizId",
+          "isPermission": true
+        },
+        {
+          "name": "Add Subscriptions",
+          "method": "POST",
+          "route": "/add",
+          "isPermission": true
+        },
+        {
+          "name": "Update Subscriptions",
+          "method": "PATCH",
+          "route": "/update/:id",
+          "isPermission": true
+        },
+        {
+          "name": "Delete Subscriptions",
+          "method": "DELETE",
+          "route": "/delete/:id",
+          "isPermission": true
+        }
+      ]
+    },
+    {
+      "subRoleName": "USER",
+      "permissions": [
+        {
+          "name": "Get Single School Detail",
+          "method": "GET",
+          "route": "/get-single/:id",
+          "isPermission": true
+        },
+        {
+          "name": "Get All Quiz List",
+          "method": "GET",
+          "route": "/get-all",
+          "isPermission": true
+        },
+        {
+          "name": "Get Single Quiz List",
+          "method": "GET",
+          "route": "/get-single/:quizId",
+          "isPermission": true
+        }
+      ]
+    }
+  ]
+}

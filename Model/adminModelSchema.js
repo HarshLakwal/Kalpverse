@@ -6,7 +6,7 @@ const adminSchema = new mongoose.Schema(
     adminEmail: { type: String, required: true },
     adminPassword: { type: String, required: true },
     profilePic: { type: String, require: true },
-    role: { type: String, default: "admin" },
+    role: { type: mongoose.Types.ObjectId, ref: "role", required: true },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

@@ -2,8 +2,7 @@ import mongoose from "mongoose";
 
 const questionSchema = new mongoose.Schema(
   {
-    quizTitle: { type: String, required: true },
-    categoryOf: { type: String, required: true },
+    level: { type: String, required: true },
     questions: [
       {
         question: { type: String, required: true },
@@ -23,5 +22,11 @@ const questionSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+questionSchema.methods.toJSON = function() {
+  let obj = this.toObject();
+  delete obj.questions.correctAnswer;
+  return obj;
+ }
 
 export default mongoose.model("quiz", questionSchema);

@@ -67,8 +67,7 @@ let role;
 const createQuiz = async (req, res) => {
   role = req.user.role;
   const questionSchema = joi.object({
-    quizTitle:joi.string().required(),
-    categoryOf: joi.string().required(),
+    level: joi.string().required(),
     questions: joi.array().items({
       question: joi.string().required(),
       options: joi.object().keys({
@@ -84,7 +83,7 @@ const createQuiz = async (req, res) => {
   if (error) {
     return res.status(422).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
   try {
@@ -93,7 +92,7 @@ const createQuiz = async (req, res) => {
       const questionData = await new questionModel(req.body);
 
       let isExist = await questionModel.findOne({
-        categoryOf: req.body.categoryOf,
+        level: req.body.level,
       });
 
       if (isExist) {
@@ -103,9 +102,10 @@ const createQuiz = async (req, res) => {
         });
       } else {
         await questionData.save();
+
         return res.status(201).json({
           success: true,
-          message: `Question ${req.body.categoryOf} category added successfully `,
+          message: `Question in ${req.body.level} added successfully `,
           data: questionData,
         });
       }
@@ -124,6 +124,9 @@ const createQuiz = async (req, res) => {
 };
 
 const getAllQuiz = async (req, res) => {
+  console.log(req.url, "url")
+  console.log(req.method, "method")
+  console.log(req.originalUrl, "originUrl")
   role = req.user.role;
   try {
     if (role === "admin") {
@@ -186,60 +189,42 @@ const getSingleQuiz = async (req, res) => {
   }
 };
 
-// const update = async (req, res, next) => {
-//     role = req.user.role
-//     let { quizId } = req.params
-//     // let fileName
-//     // if (req.file) {
-//     //     fileName = req.file.filename;
-//     // }
-//     console.log(d)
-//     try {
-//         if (role === "admin") {
-//             let question = await questionModel.findOne({ _id: id, 'questions._id': questionId }, { 'questions.$': 1 })
-
-//         } else {
-//             return res.status(404).json({
-//                 success: false,
-//                 message: 'you are not a authorized person',
-//             });
-//         }
-//     } catch (error) {
-//         return next(error)
-//     }
-// };
-
-const update = async (req, res, next) => {
+const updateSingleQuestion = async (req, res, next) => {
   role = req.user.role;
-  let { quizId } = req.params;
+  let { quizId, questionId } = req.params;
   try {
     if (role === "admin") {
-      const quizData = await questionModel.findByIdAndUpdate(quizId, req.body, {
-        new: true,
-      });
+      let quizData = await questionModel.findOneAndUpdate(
+        { _id: quizId, "questions._id": questionId },
+        {
+          $set: {
+            "questions.$.question": req.body.question,
+            "questions.$.options": req.body.options,
+            "questions.$.correctAnswer": req.body.correctAnswer,
+          },
+        },
+        { new: true }
+      );
       if (quizData) {
         res.status(200).json({
           success: true,
-          message: `Update quiz successfully.`,
+          message: `question update successfully.`,
           quizData: quizData,
         });
       } else {
         res.status(403).json({
           success: false,
-          message: `quiz not found.`,
+          message: `question not found.`,
         });
       }
     } else {
-      return res.status(401).json({
+      return res.status(404).json({
         success: false,
         message: "you are not a authorized person",
       });
     }
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    return next(error);
   }
 };
 
@@ -288,8 +273,8 @@ const checkAnswer = async (req, res) => {
           totalQuestions: totalQuestions,
           attemptQuestions: attemptQuestions,
           rightAnswer: rightAnswer,
-          wrongAnswer: wrongAnswer
-         // message: `Total question ${totalQuestions}, attempt questions ${attemptQuestions}, right answer ${rightAnswer} and wrong answer ${wrongAnswer}`,
+          wrongAnswer: wrongAnswer,
+          // message: `Total question ${totalQuestions}, attempt questions ${attemptQuestions}, right answer ${rightAnswer} and wrong answer ${wrongAnswer}`,
         });
       } else {
         return res.status(403).json({
@@ -348,6 +333,6 @@ export default {
   getAllQuiz,
   getSingleQuiz,
   checkAnswer,
-  update,
   deleteQuiz,
+  updateSingleQuestion,
 };
