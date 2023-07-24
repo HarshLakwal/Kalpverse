@@ -199,7 +199,6 @@ const activeDeActiveUser = async (req, res) => {
   }
 };
 
-
 // function paginatedResults(model) {
 //   // middleware function
 //   return (req, res, next) => {

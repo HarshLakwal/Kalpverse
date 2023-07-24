@@ -331,6 +331,44 @@ const checkAnswer = async (req, res) => {
   }
 };
 
+const deleteSingleQuestion = async (req, res, next) => {
+  const role = req.user.role;
+  const { quizId, questionId } = req.params;
+  try {
+    if (role === "admin") {
+      const quizData = await questionModel.findOneAndUpdate(
+        { _id: quizId },
+        {
+          $pull: {
+            questions: { _id: questionId },
+          },
+        },
+        { new: true }
+      );
+
+      if (quizData) {
+        res.status(200).json({
+          success: true,
+          message: `Question deleted successfully.`,
+          quizData: quizData,
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          message: `Quiz not found.`,
+        });
+      }
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: "You are not an authorized person.",
+      });
+    }
+  } catch (error) {
+    return next(error);
+  }
+};
+
 const deleteQuiz = async (req, res) => {
   role = req.user.role;
   let { quizId } = req.params;
@@ -371,4 +409,5 @@ export default {
   deleteQuiz,
   updateSingleQuestion,
   getSingleQuestion,
+  deleteSingleQuestion
 };
