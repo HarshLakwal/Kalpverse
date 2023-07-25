@@ -194,10 +194,11 @@ const getSingleQuestion = async (req, res) => {
   let { quizId, questionId } = req.params;
   try {
     if (role === "admin") {
-      const quizData = await questionModel.findOne(
-        { _id: quizId },
-        { questions: { $elemMatch: { _id: questionId } } }
+      const quizData = await questionModel.findOne({'questions._id':questionId},{'questions.$':1}
+        // { _id: quizId },
+        // { questions: { $elemMatch: { _id: questionId } } }
       );
+      console.log(quizData)
       if (quizData) {
         return res.status(200).json({
           success: true,
@@ -230,7 +231,8 @@ const updateSingleQuestion = async (req, res, next) => {
   try {
     if (role === "admin") {
       let quizData = await questionModel.findOneAndUpdate(
-        { _id: quizId, "questions._id": questionId },
+        {'questions._id':questionId},
+        // { _id: quizId, "questions._id": questionId },
         {
           $set: {
             "questions.$.question": req.body.question,

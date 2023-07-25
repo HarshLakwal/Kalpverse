@@ -438,7 +438,7 @@ const schoolUpdate = async (req, res) => {
 
   const { error } = validateSchoolUpdate(req.body);
   if (error) {
-    fs.unlinkSync(req.file.path);
+    // fs.unlinkSync(req.file.path); 
     return res.status(422).json({
       success: false,
       message: error.message

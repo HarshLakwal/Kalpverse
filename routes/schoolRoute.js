@@ -10,7 +10,7 @@ router.get("/get-single/:id", schoolController.getSingleSchool);
 router.use(auth);
 router.post("/register", multer.imgUpload.single("logo"), schoolController.schoolRegister);
 router.get("/get-schools", schoolController.allSchoolList);
-router.patch("/update/:id", multer.imgUpload.single("logo"), schoolController.schoolUpdate);
+router.post("/update/:id", multer.imgUpload.single("logo"), schoolController.schoolUpdate);
 router.delete("/delete/:id", schoolController.schoolDelete);
 
 export default router;
