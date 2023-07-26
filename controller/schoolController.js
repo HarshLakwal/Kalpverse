@@ -159,6 +159,7 @@ const validateUser = (user) => {
 // };
 
 const schoolRegister = async (req, res) => {
+  
   const { error } = validateUser(req.body);
   if (error) {
     return res.status(422).json({
@@ -174,7 +175,7 @@ const schoolRegister = async (req, res) => {
   if (req.file) {
     fileName = req.file.filename;
   }
-
+  
   try {
     if (role === "admin") {
       schoolData = new schoolModel(req.body);

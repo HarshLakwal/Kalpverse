@@ -160,38 +160,40 @@ const activeDeActiveUser = async (req, res) => {
   let { id } = req.params;
   let role = req.user.role;
   let schoolData;
-  const isActiveSchema = joi.object({
-    isActive: joi.boolean().required(),
-  });
-  const { error } = isActiveSchema.validate(req.body);
-  if (error) {
-    return res.status(422).json({
-      success: false,
-      message: error.message,
-    });
-  }
+  // const isActiveSchema = joi.object({
+  //   isActive: joi.boolean().required(),
+  // });
+  // const { error } = isActiveSchema.validate(req.body);
+  // if (error) {
+  //   return res.status(422).json({
+  //     success: false,
+  //     message: error.message,
+  //   });
+  // }
   try {
     if (role === "admin") {
-      schoolData = await schoolModel.findById(id);
-      if (req.body.isActive === false) {
-        schoolData.isActive = false;
-        await schoolData.save();
-        return res.status(200).json({
-          success: true,
-          message: `User deactivate successful`,
-          schoolData: schoolData,
-        });
-      } else {
-        schoolData.isActive = true;
-        await schoolData.save();
-        return res.status(200).json({
-          success: true,
-          message: `User Activate successful`,
-          schoolData: schoolData,
-        });
-      }
+      const isActive = await schoolModel.findById(id)
+      let status;
+      isActive.isActive ? status = false : status = true
+      await schoolModel.findOneAndUpdate({ _id: id }, {
+          $set: {
+              isActive: status
+          },
+          new: true
+      });
+      return res.status(200).json({ message: `User ${status ? "Active" : "Inactive"} successfull` })
+      } 
+      // else {
+      //   schoolData.isActive = true;
+      //   await schoolData.save();
+      //   return res.status(200).json({
+      //     success: true,
+      //     message: `User Activate successful`,
+      //     schoolData: schoolData,
+      //   });
+      // }
     }
-  } catch (error) {
+   catch (error) {
     return res.status(500).json({
       success: false,
       message: error.message
